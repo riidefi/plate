@@ -8,8 +8,10 @@
 
 #include <memory>
 #include <queue>
+#include <span>
 #include <stdint.h>
 #include <string>
+#include <string_view>
 
 namespace plate {
 
@@ -60,7 +62,7 @@ public:
   /**
    * @brief      Handle a file being dropped on the application.
    *
-   * @details    Called at the beginning of each frame, before calc/draw. 
+   * @details    Called at the beginning of each frame, before calc/draw.
    *
    * @param data File data.
    * @param len  Length of the data buffer.
@@ -68,6 +70,16 @@ public:
    */
   virtual void vdropDirect(std::unique_ptr<uint8_t[]> data, std::size_t len,
                            const std::string& name) {}
+
+  /**
+   * @brief Write a file to disc. On the web backend, the file will
+   * instead be supplied as a download.
+   *
+   * @param data Binary blob.
+   * @param path Path to write the file at.
+   * 
+   */
+  static void writeFile(const std::span<uint8_t> data, const std::string_view path);
 
   void hideMouse();
   void showMouse();

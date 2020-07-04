@@ -2,18 +2,17 @@
 
 #include <cstdio>
 #include <fstream>
+#include <imgui/imgui.h>
+#include <imgui/impl/imgui_impl_glfw.h>
+#include <imgui/impl/imgui_impl_opengl3.h>
 #include <plate/Platform.hpp>
 #include <plate/gl.hpp>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string_view>
 #include <vector>
-#include <imgui/imgui.h>
-#include <imgui/impl/imgui_impl_glfw.h>
-#include <imgui/impl/imgui_impl_opengl3.h>
 
 namespace plate {
-
 
 static void handleGlfwError(int err, const char* description) {
   fprintf(stderr, "GLFW Error: %d: %s\n", err, description);
@@ -64,8 +63,9 @@ Platform::Platform(unsigned width, unsigned height, const std::string& pName)
 #ifdef BUILD_DEBUG
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
-  initWindow(*(GLFWwindow**)&mPlatformWindow, width, height, mTitle.c_str(), this);
-  
+  initWindow(*(GLFWwindow**)&mPlatformWindow, width, height, mTitle.c_str(),
+             this);
+
   gl3wInit();
 
   // Defer init..
@@ -166,6 +166,12 @@ void Platform::enter() {
     }
     glfwSwapBuffers((GLFWwindow*)mPlatformWindow);
   }
+}
+
+void Platform::writeFile(const std::span<uint8_t> data,
+                         const std::string_view path) {
+  std::ofstream stream(std::string(path), std::ios::binary | std::ios::out);
+  stream.write(reinterpret_cast<const char*>(data.data()), data.size());
 }
 
 } // namespace plate

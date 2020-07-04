@@ -5,14 +5,14 @@
 #include <cstdio>
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#include <imgui/imgui.h>
+#include <imgui/impl/imgui_impl_opengl3.h>
+#include <imgui/impl/imgui_impl_sdl.h>
 #include <plate/Platform.hpp>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string_view>
 #include <vector>
-#include <imgui/imgui.h>
-#include <imgui/impl/imgui_impl_opengl3.h>
-#include <imgui/impl/imgui_impl_sdl.h>
 
 #include <SDL.h>
 #include <SDL_opengles2.h>
@@ -170,6 +170,16 @@ void Platform::enter() {
   // Hacky workaround...
   emscripten_set_click_callback(0, 0, 1, EmscriptenMouseCallback);
 }
+
+void Platform::writeFile(const std::span<uint8_t> data,
+                         const std::string_view path) {
+  static_assert(sizeof(void*) == sizeof(uint32_t), "emscripten pointer size");
+
+  EM_ASM({ window.Module.downloadBuffer($0, $1, $2, $3); },
+         reinterpret_cast<uint32_t>(data.data()), data.size(),
+         reinterpret_cast<uint32_t>(path.data()), path.size());
+}
+
 } // namespace plate
 
 #endif
